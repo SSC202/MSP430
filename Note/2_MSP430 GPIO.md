@@ -80,3 +80,60 @@ GPIO的寄存器均为8位寄存器。
 > `Bit = 0`：普通IO口
 >
 > `Bit = 1`：外设复用IO口
+
+- LED例程演示
+
+```c
+#include "io430.h"
+
+/**
+ *	@brief	毫秒延时函数
+ *  @attention	__delay_cycles()为微秒延时函数，MSP430的时钟主频为1MHz
+ */
+void delay_ms(int ms)
+{
+  for(;ms > 0;ms--)
+    __delay_cycles(1000);
+}
+
+int main( void )
+{
+  // Stop watchdog timer to prevent time out reset
+  WDTCTL = WDTPW + WDTHOLD;
+  
+  P1DIR |= BIT0;        //设置1.0为输出
+  P4DIR |= BIT7;
+  P1OUT |= BIT0;        //设置1.0为高电平
+  P4OUT |= BIT7;
+  delay_ms(1000);
+  P1OUT ^= BIT0;        //设置1.0翻转
+  delay_ms(1000);
+  
+  while(1)
+  {
+    P4OUT ^= BIT7;
+    delay_ms(1000);
+  }
+}
+```
+
+## 2. 库函数法
+
+```c
+#include "driverlib.h"
+
+int main( void )
+{
+  // Stop watchdog timer to prevent time out reset
+  WDT_A_hold(WDT_A_BASE);
+  
+  GPIO_setAsOutputPin(GPIO_PORT_P1,GPIO_PIN0);			//设置1.0为输出
+  GPIO_setOutputHighOnPin(GPIO_PORT_P1,GPIO_PIN0);		//设置1.0为高电平
+  
+  while(1)
+  {
+    ;
+  }
+}
+```
+
